@@ -1,0 +1,6 @@
+[user]
+	email = kouei525@gmail.com
+	name = KoueiYamaoka
+
+[core]
+    editor = "/usr/bin/emacsclient -t" --alternate-editor /usr/bin/emacs
