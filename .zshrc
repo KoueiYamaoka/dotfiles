@@ -14,7 +14,7 @@ fi
 # system settings
 setxkbmap -option ctrl:nocaps
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-export HISTIGNORE='ls:la:..:cdnow:gomi:e:ez:sz:'
+export HISTORY_IGNORE="(ls|la|..|cd|e|ez|sz|ekill|gomi|lsgomi)"
 [ "$USER" = "root" ] && echo 'You are root!' >&2
 case $TERM in
     linux) LANG=C ;;
@@ -24,6 +24,7 @@ esac
 ## alias
 # working
 alias cdtmu='cd /mnt/Shared/TMU'
+alias cdsrc='cd /mnt/Shared/TMU/src'
 alias cdnow='~/Documents'
 
 # emacs
@@ -37,6 +38,7 @@ alias sz='source ~/.zshrc'
 
 # system
 alias ls="ls --group-directories-first --color=auto --ignore={'\$RECYCLE.BIN','System Volume Information'}"
+alias cat='bat'
 alias pbcopy='xsel --clipboard --input'
 alias open='xdg-open'
 alias lsgomi='ls -la ${HOME}/.local/share/Trash/files'
@@ -47,8 +49,12 @@ then
     alias rm='mv --backup=numbered --target-directory=${HOME}/.local/share/Trash/files/'
 fi
 alias tree='tree --dirsfirst'
-alias rm='rm -f'
 alias whatpulse='~/Programs/whatpulse/whatpulse'
+
+# global aliases
+alias -g g='| grep '
+alias -g pcp='| pbcopy'
+alias -g p='| peco'
 
 # you are blushing
 function ks(){
@@ -67,6 +73,7 @@ alias pdfcrops='source ~/shellScripts/pdfcrops.sh'
 alias eps2pdf='source ~/shellScripts/eps2pdf.sh'
 alias dict='source ~/shellScripts/dict.sh'
 alias pdf_reduce='source ~/shellScripts/pdf_reduce.sh'
+alias latex2txt='source ~/shellScripts/latex2txt.sh'
 
 # python
 alias p3='python3'
@@ -169,4 +176,34 @@ setopt prompt_subst
 
 # write git status and conda env in right side
 RPROMPT='`rprompt-git-current-branch``rprompt-conda-current-env`'
+
+# cdr
+if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]; then
+    autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+    add-zsh-hook chpwd chpwd_recent_dirs
+    zstyle ':completion:*' recent-dirs-insert both
+    zstyle ':chpwd:*' recent-dirs-default true
+    zstyle ':chpwd:*' recent-dirs-max 1000
+    zstyle ':chpwd:*' recent-dirs-file "$HOME/.cache/chpwd-recent-dirs"
+fi
+
+# peco
+function peco-history-selection() {
+    BUFFER=`history -n 1 | tac  | awk '!a[$0]++' | peco`
+    CURSOR=$#BUFFER
+    zle reset-prompt
+}
+
+zle -N peco-history-selection
+bindkey '^R' peco-history-selection
+
+function peco-cdr () {
+    local selected_dir="$(cdr -l | sed 's/^[0-9]\+ \+//' | peco --prompt="cdr >" --query "$LBUFFER")"
+    if [ -n "$selected_dir" ]; then
+        BUFFER="cd ${selected_dir}"
+        zle accept-line
+    fi
+}
+zle -N peco-cdr
+bindkey '^E' peco-cdr
 
