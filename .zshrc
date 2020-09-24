@@ -13,19 +13,25 @@ fi
 # Customize to your needs...
 # system settings
 setxkbmap -option ctrl:nocaps
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-export HISTORY_IGNORE="(ls|la|..|cd|e|ez|sz|ekill|gomi|lsgomi)"
 [ "$USER" = "root" ] && echo 'You are root!' >&2
 case $TERM in
     linux) LANG=C ;;
     *) LANG=ja_JP.UTF-8 ;;
 esac
 
+## set environment variables
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+export HISTORY_IGNORE="(ls|la|..|cd|e|ez|sz|ekill|gomi|lsgomi)"
+
+# python (don't add $PYTHONPATH)
+export PYTHONPATH=/home/kouei/libraries/python
+
+
 ## alias
-# working
-alias cdtmu='cd /mnt/Shared/TMU'
-alias cdsrc='cd /mnt/Shared/TMU/src'
-alias cdnow='~/Documents'
+# global aliases
+alias -g g='| grep '
+alias -g pcp='| pbcopy'
+alias -g p='| peco'
 
 # emacs
 alias e='emacsclient -nw -a ""'
@@ -50,11 +56,8 @@ then
 fi
 alias tree='tree --dirsfirst'
 alias whatpulse='~/Programs/whatpulse/whatpulse'
-
-# global aliases
-alias -g g='| grep '
-alias -g pcp='| pbcopy'
-alias -g p='| peco'
+alias firefox='~/Programs/firefox/firefox'
+alias diff='colordiff -u'
 
 # you are blushing
 function ks(){
@@ -77,12 +80,15 @@ alias latex2txt='source ~/shellScripts/latex2txt.sh'
 
 # python
 alias p3='python3'
+alias check_conda_and_pip='conda list | cut -d " " -f 1 | sort | uniq -d'
 
 # matlab
 function rmat(){
     matlab -nodisplay -nosplash -nodesktop -r "run('$1');exit;" | tail -n +11
 }
 
+# keybindings
+alias xkeysnail='xhost +SI:localuser:root & sudo xkeysnail ~/.config/xkeysnail/config.py'
 
 # git
 alias ga='git add'
@@ -99,7 +105,7 @@ alias dropbox='/usr/bin/dropbox'
 alias sl='sl -e'
 alias fortune='/usr/games/fortune'
 
-# zsh settings
+## zsh settings
 # history search by Ctrl-p, Ctrl-n
 autoload -Uz history-search-end
 zle -N history-beginning-search-backward-end history-search-end
@@ -195,7 +201,7 @@ function peco-history-selection() {
 }
 
 zle -N peco-history-selection
-bindkey '^R' peco-history-selection
+bindkey '^Q' peco-history-selection
 
 function peco-cdr () {
     local selected_dir="$(cdr -l | sed 's/^[0-9]\+ \+//' | peco --prompt="cdr >" --query "$LBUFFER")"
@@ -205,5 +211,5 @@ function peco-cdr () {
     fi
 }
 zle -N peco-cdr
-bindkey '^E' peco-cdr
+bindkey '^R' peco-cdr
 
