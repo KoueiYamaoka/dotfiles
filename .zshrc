@@ -7,7 +7,7 @@
 
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
+    source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
 # Customize to your needs...
@@ -77,6 +77,7 @@ alias eps2pdf='source ~/shellScripts/eps2pdf.sh'
 alias dict='source ~/shellScripts/dict.sh'
 alias pdf_reduce='source ~/shellScripts/pdf_reduce.sh'
 alias latex2txt='source ~/shellScripts/latex2txt.sh'
+alias disp_set='source ~/shellScripts/local/disp_set.sh'
 
 # python
 alias p3='python3'
@@ -121,9 +122,9 @@ if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
     if [ -f "/home/kouei/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/kouei/miniconda3/etc/profile.d/conda.sh"
+	. "/home/kouei/miniconda3/etc/profile.d/conda.sh"
     else
-        export PATH="/home/kouei/miniconda3/bin:$PATH"
+	export PATH="/home/kouei/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
@@ -133,49 +134,45 @@ unset __conda_setup
 # git settings
 # method for writing colored blanch name
 function rprompt-git-current-branch {
-  local branch_name st branch_status
+    local branch_name st branch_status
 
-  if [ ! -e  ".git" ]; then
-    # if there is no .git
-    return
-  fi
-  branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
-  st=`git status 2> /dev/null`
-  if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
-    # all git files are comitted
-    branch_status="%F{green}"
-  elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
-    # there are some new files
-    branch_status="%F{red}?"
-  elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
-    # there are some files which are not added to git
-    branch_status="%F{red}+"
-  elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
-    # there are some files which should be committed
-    branch_status="%F{yellow}!"
-  elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
-    # some files are conflicted
-    echo "%F{red}!(no branch)"
-    return
-  else
-    # otherwise
-    branch_status="%F{blue}"
-  fi
-  # witre branch name with color
-  echo "${branch_status}[$branch_name]"
+    if [ ! -e  ".git" ]; then
+	# if there is no .git
+	return
+    fi
+    branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+    st=`git status 2> /dev/null`
+    if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
+	# all git files are comitted
+	branch_status="%F{green}"
+    elif [[ -n `echo "$st" | grep "^Untracked files"` ]]; then
+	# there are some new files
+	branch_status="%F{red}?"
+    elif [[ -n `echo "$st" | grep "^Changes not staged for commit"` ]]; then
+	# there are some files which are not added to git
+	branch_status="%F{red}+"
+    elif [[ -n `echo "$st" | grep "^Changes to be committed"` ]]; then
+	# there are some files which should be committed
+	branch_status="%F{yellow}!"
+    elif [[ -n `echo "$st" | grep "^rebase in progress"` ]]; then
+	# some files are conflicted
+	echo "%F{red}!(no branch)"
+	return
+    else
+	# otherwise
+	branch_status="%F{blue}"
+    fi
+    # witre branch name with color
+    echo "${branch_status}[$branch_name]"
 }
 
 
 # display the current environment
 function rprompt-conda-current-env {
-
-  if [ $CONDA_DEFAULT_ENV = "base" ]; then
-    # if the current env is base
-    return
-  fi
-
-  # witre
-  echo " %F{white}($CONDA_DEFAULT_ENV)"
+    if [ ! $CONDA_DEFAULT_ENV = "base" ]; then
+	# witre
+	echo " %F{white}($CONDA_DEFAULT_ENV)"
+    fi
 }
 
 setopt prompt_subst
@@ -206,10 +203,9 @@ bindkey '^Q' peco-history-selection
 function peco-cdr () {
     local selected_dir="$(cdr -l | sed 's/^[0-9]\+ \+//' | peco --prompt="cdr >" --query "$LBUFFER")"
     if [ -n "$selected_dir" ]; then
-        BUFFER="cd ${selected_dir}"
-        zle accept-line
+	BUFFER="cd ${selected_dir}"
+	zle accept-line
     fi
 }
 zle -N peco-cdr
 bindkey '^R' peco-cdr
-
