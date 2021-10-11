@@ -37,6 +37,7 @@ alias -g p='| peco'
 alias e='emacsclient -nw -a ""'
 alias se='sudo emacsclient -nw -a ""'
 alias ekill='/usr/bin/emacsclient -e "(kill-emacs)"'
+alias sekill='sudo /usr/bin/emacsclient -e "(kill-emacs)"'
 
 # zsh
 alias ez='e ~/.zshrc'
@@ -44,7 +45,6 @@ alias sz='source ~/.zshrc'
 
 # system
 alias ls="ls --group-directories-first --color=auto --ignore={'\$RECYCLE.BIN','System Volume Information'}"
-alias cat='bat'
 alias pbcopy='xsel --clipboard --input'
 alias open='xdg-open'
 alias lsgomi='ls -la ${HOME}/.local/share/Trash/files'
@@ -58,6 +58,12 @@ alias tree='tree --dirsfirst'
 alias whatpulse='~/Programs/whatpulse/whatpulse'
 alias firefox='~/Programs/firefox/firefox'
 alias diff='colordiff -u'
+if type bat > /dev/null 2>&1; then
+    alias cat='bat'
+else
+    alias cat='batcat'
+fi
+
 
 # you are blushing
 function ks(){
@@ -88,6 +94,9 @@ function rmat(){
     matlab -nodisplay -nosplash -nodesktop -r "run('$1');exit;" | tail -n +11
 }
 
+# luatex
+alias luatex=lualatex
+
 # keybindings
 alias xkeysnail='xhost +SI:localuser:root & sudo xkeysnail ~/.config/xkeysnail/config.py'
 
@@ -117,14 +126,14 @@ bindkey "^n" history-beginning-search-forward-end
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/kouei/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+__conda_setup="$('/home/kouei/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
 else
     if [ -f "/home/kouei/miniconda3/etc/profile.d/conda.sh" ]; then
-	. "/home/kouei/miniconda3/etc/profile.d/conda.sh"
+        . "/home/kouei/miniconda3/etc/profile.d/conda.sh"
     else
-	export PATH="/home/kouei/miniconda3/bin:$PATH"
+        export PATH="/home/kouei/miniconda3/bin:$PATH"
     fi
 fi
 unset __conda_setup
