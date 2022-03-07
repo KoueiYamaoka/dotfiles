@@ -5,6 +5,10 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
+# conda
+fpath+=/.zprezto/contrib/conda-zsh-completion
+compinit conda
+
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
     source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -64,6 +68,9 @@ else
     alias cat='batcat'
 fi
 
+# tools
+alias ats='atcoder-tools'
+
 
 # you are blushing
 function ks(){
@@ -84,6 +91,7 @@ alias dict='source ~/shellScripts/dict.sh'
 alias pdf_reduce='source ~/shellScripts/pdf_reduce.sh'
 alias latex2txt='source ~/shellScripts/latex2txt.sh'
 alias disp_set='source ~/shellScripts/local/disp_set.sh'
+alias calc='source ~/shellScripts/calc.sh'
 
 # python
 alias p3='python3'
