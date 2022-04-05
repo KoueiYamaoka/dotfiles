@@ -153,11 +153,13 @@ unset __conda_setup
 function rprompt-git-current-branch {
     local branch_name st branch_status
 
-    if [ ! -e  ".git" ]; then
-	# if there is no .git
-	return
-    fi
     branch_name=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+
+    if [ "$branch_name" = "" ]; then
+    	# if there is no .git
+    	return
+    fi
+
     st=`git status 2> /dev/null`
     if [[ -n `echo "$st" | grep "^nothing to"` ]]; then
 	# all git files are comitted
