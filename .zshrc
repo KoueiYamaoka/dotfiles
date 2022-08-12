@@ -52,7 +52,7 @@ alias ls="ls --group-directories-first --color=auto --ignore={'\$RECYCLE.BIN','S
 alias pbcopy='xsel --clipboard --input'
 alias open='xdg-open'
 alias lsgomi='ls -la ${HOME}/.local/share/Trash/files'
-alias fc='ls -UF | grep -v | wc -l'
+alias fc='ls -UF | grep -v / | wc -l'
 alias dirc="ls -l | grep '^d' | wc -l"
 if [ -d ${HOME}/.local/share/Trash/files ]
 then
