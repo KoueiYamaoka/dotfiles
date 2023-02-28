@@ -5,10 +5,6 @@
 #   Sorin Ionescu <sorin.ionescu@gmail.com>
 #
 
-# conda
-fpath+=/.zprezto/contrib/conda-zsh-completion
-compinit conda
-
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
     source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -26,6 +22,7 @@ esac
 ## set environment variables
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 export HISTORY_IGNORE="(ls|la|..|cd|e|ez|sz|ekill|gomi|lsgomi)"
+export PATH=/home/kouei/.local/bin:$PATH
 
 # python (don't add $PYTHONPATH)
 export PYTHONPATH=/home/kouei/libraries/python
@@ -37,11 +34,37 @@ alias -g g='| grep '
 alias -g pcp='| pbcopy'
 alias -g p='| peco'
 
+# vterm for emacs
+vterm_cmd() {
+    local vterm_elisp
+    vterm_elisp=""
+    while [ $# -gt 0 ]; do
+        vterm_elisp="$vterm_elisp""$(printf '"%s" ' "$(printf "%s" "$1" | sed -e 's|\\|\\\\|g' -e 's|"|\\"|g')")"
+        shift
+    done
+    vterm_printf "51;E$vterm_elisp"
+}
+function open_file_below() {
+    vterm_cmd find-file "$(realpath "${@:-.}")"
+}
+
 # emacs
-alias e='emacsclient -nw -a ""'
+alias e="emacs"
+alias emacsclient="/usr/local/bin/emacsclient"
+function emacs() {
+    if [[ "$INSIDE_EMACS" = 'vterm' ]]; then
+        if [ $# -eq 1 ]; then
+            open_file_below $1
+        else
+            vterm_printf "51;Eswitch-to-prev-buffer"
+        fi
+    else
+        /usr/local/bin/emacsclient -nw -a "" $1
+    fi
+}
 alias se='sudo emacsclient -nw -a ""'
-alias ekill='/usr/bin/emacsclient -e "(kill-emacs)"'
-alias sekill='sudo /usr/bin/emacsclient -e "(kill-emacs)"'
+alias ekill='emacsclient -e "(kill-emacs)"'
+alias sekill='sudo emacsclient -e "(kill-emacs)"'
 
 # zsh
 alias ez='e ~/.zshrc'
@@ -67,6 +90,7 @@ if type bat > /dev/null 2>&1; then
 else
     alias cat='batcat'
 fi
+pgkill () {pgrep $1 | xargs kill -9}
 
 # tools
 alias ats='atcoder-tools'
@@ -77,7 +101,6 @@ function ks(){
     banner KS
     ls
 }
-alias ks=ks
 function mc(){
     banner 'mc???'
     mv $1 $2
@@ -92,10 +115,12 @@ alias pdf_reduce='source ~/shellScripts/pdf_reduce.sh'
 alias latex2txt='source ~/shellScripts/latex2txt.sh'
 alias disp_set='source ~/shellScripts/local/disp_set.sh'
 alias calc='source ~/shellScripts/calc.sh'
+alias toggle_emacs_frame_existence='source ~/shellScripts/toggle_emacs_frame_existence.sh'
 
 # python
 alias p3='python3'
-alias check_conda_and_pip='conda list | cut -d " " -f 1 | sort | uniq -d'
+alias poea='poetry add'
+alias poead='poetry add --group dev'
 
 # matlab
 function rmat(){
@@ -131,21 +156,18 @@ zle -N history-beginning-search-forward-end history-search-end
 bindkey "^p" history-beginning-search-backward-end
 bindkey "^n" history-beginning-search-forward-end
 
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/home/kouei/miniconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/home/kouei/miniconda3/etc/profile.d/conda.sh" ]; then
-        . "/home/kouei/miniconda3/etc/profile.d/conda.sh"
+## emacs-libvterm settings
+vterm_printf(){
+    if [ -n "$TMUX" ] && ([ "${TERM%%-*}" = "tmux" ] || [ "${TERM%%-*}" = "screen" ] ); then
+        # Tell tmux to pass the escape sequences through
+        printf "\ePtmux;\e\e]%s\007\e\\" "$1"
+    elif [ "${TERM%%-*}" = "screen" ]; then
+        # GNU screen (screen, screen-256color, screen-256color-bce)
+        printf "\eP\e]%s\007\e\\" "$1"
     else
-        export PATH="/home/kouei/miniconda3/bin:$PATH"
+        printf "\e]%s\e\\" "$1"
     fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
+}
 
 
 # git settings
@@ -185,19 +207,10 @@ function rprompt-git-current-branch {
     echo "${branch_status}[$branch_name]"
 }
 
-
-# display the current environment
-function rprompt-conda-current-env {
-    if [ ! $CONDA_DEFAULT_ENV = "base" ]; then
-	# witre
-	echo " %F{white}($CONDA_DEFAULT_ENV)"
-    fi
-}
-
 setopt prompt_subst
 
-# write git status and conda env in right side
-RPROMPT='`rprompt-git-current-branch``rprompt-conda-current-env`'
+# write git status in right side
+RPROMPT='`rprompt-git-current-branch`'
 
 # cdr
 if [[ -n $(echo ${^fpath}/chpwd_recent_dirs(N)) && -n $(echo ${^fpath}/cdr(N)) ]]; then
@@ -228,3 +241,6 @@ function peco-cdr () {
 }
 zle -N peco-cdr
 bindkey '^R' peco-cdr
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
